@@ -13,3 +13,7 @@ npm install babel-loader -D
 npm install @babel/core @babel/preset-env @babel/plugin-transform-runtime -D
 
 npm install @babel/runtime @babel/runtime-corejs3 -D
+
+5. 添加 mode
+
+npx webpack
