@@ -143,3 +143,67 @@ module.exports = {
 6. 重新运行打包命令 npx webpack
 尝试完成后，入口文件还是需要改回 ./src/index.js
 结论：Loader 就是将 Webpack 不认识的内容转化为认识的内容
+
+### 1.5插件（plugin）
+与 Loader 用于转换特定类型的文件不同，插件（Plugin）可以贯穿 Webpack 打包的生命周期，执行不同的任务
+
+1. 新建 ./src/index.html 文件
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ITEM</title>
+</head>
+<body>
+    
+</body>
+</html>
+```
+2. 本地安装 html-webpack-plugin
+```sh
+npm install html-webpack-plugin -D
+```
+3.配置插件
+```js
+const path = require('path')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
+
+module.exports = {
+    mode: 'development', // 模式
+    entry: './src/index.js', // 打包入口地址
+    output: {
+        filename: 'bundle.js', // 输出文件名
+        path: path.join(__dirname, 'dist') // 输出文件目录
+    },
+    module: { 
+        rules: [{
+            test: /\.css$/, //匹配所有的 css 文件
+            use: 'css-loader' // use: 对应的 Loader 名称
+        }]
+    },
+    plugins:[ // 配置插件
+        new HtmlWebpackPlugin({
+            template: './src/index.html'
+        })
+    ]
+}
+```
+运行一下打包，打开 dist 目录下生成的 index.html 文件
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ITEM</title>
+<script defer src="bundle.js"></script></head>
+<body>
+  
+</body>
+</html>
+```
+可以看到它自动的引入了打包好的 bundle.js ，非常方便实用
