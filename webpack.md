@@ -69,3 +69,19 @@ module.exports = {
 ```js
 npx webpack --mode=development
 ```
+
+### 1.3配置文件
+1. 跟路径下新建一个配置文件 webpack.config.js
+2. 新增基本配置信息
+```js
+const path = require('path')
+
+module.exports = {
+    mode: 'development', // 模式
+    entry: './src/index.js', // 打包入口地址
+    output: {
+        filename: 'bundle.js', // 输出文件名
+        path: path.join(__dirname, 'dist') // 输出文件目录
+    }
+}
+```
