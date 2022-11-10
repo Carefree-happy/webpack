@@ -207,3 +207,27 @@ module.exports = {
 </html>
 ```
 可以看到它自动的引入了打包好的 bundle.js ，非常方便实用
+### 1.6自动清空打包记录
+每次打包的时候，打包目录都会遗留上次打包的文件，为了保持打包目录的纯净，我们需要在打包前将打包目录清空
+
+这里我们可以使用插件 clean-webpack-plugin 来实现
+1. 安装
+```sh
+npm install clean-webpack-plugin -D
+```
+2. 配置
+```js
+const path = require('path')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
+// 引入插件
+const { CleanWebpackPlugin } = require('clean-webpack-plugin')
+
+module.exports = {
+    plugins:[ // 配置插件
+        new HtmlWebpackPlugin({
+            template: './src/index.html'
+        }),
+        new CleanWebpackPlugin() // 引入插件
+    ]
+}
+```
