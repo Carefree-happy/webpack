@@ -231,3 +231,84 @@ module.exports = {
     ]
 }
 ```
+### 1.7区分环境
+
+本地环境：
+- 需要更快的构建速度
+- 需要打印 debug 信息
+- 需要 live reload 或 hot reload 功能
+- 需要 sourcemap 方便定位问题
+- ...
+
+生产环境：
+- 需要更小的包体积，代码压缩+tree-shaking
+- 需要进行代码分割
+- 需要压缩图片体积
+- ...
+
+1. 本地安装[cross-env](https://link.juejin.cn/?target=https%3A%2F%2Fwww.npmjs.com%2Fpackage%2Fcross-env)
+```sh
+npm install cross-env -D
+```
+2. 配置启动命令
+打开 ./package.json
+```js
+"scripts": {
+    "dev": "cross-env NODE_ENV=dev webpack serve --mode development", 
+    "test": "cross-env NODE_ENV=test webpack --mode production",
+    "build": "cross-env NODE_ENV=prod webpack --mode production"
+},
+```
+3. 在在 Webpack 配置文件中获取环境变量
+```js
+const path = require('path')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
+
+console.log('process.env.NODE_ENV=', process.env.NODE_ENV) // 打印环境变量
+
+const config = {
+  entry: './src/index.js', // 打包入口地址
+  output: {
+    filename: 'bundle.js', // 输出文件名
+    path: path.join(__dirname, 'dist') // 输出文件目录
+  },
+  module: { 
+    rules: [
+      {
+        test: /\.css$/, //匹配所有的 css 文件
+        use: 'css-loader' // use: 对应的 Loader 名称
+      }
+    ]
+  },
+  plugins:[ // 配置插件
+    new HtmlWebpackPlugin({
+      template: './src/index.html'
+    })
+  ]
+}
+
+module.exports = (env, argv) => {
+  console.log('argv.mode=',argv.mode) // 打印 mode(模式) 值
+  // 这里可以通过不同的模式修改 config 配置
+  return config;
+}
+```
+4. 测试一下
+- 执行 npm run build
+```js
+process.env.NODE_ENV= prod
+argv.mode= production
+```
+
+- 执行 npm run test
+```js
+process.env.NODE_ENV= test
+argv.mode= production
+```
+
+- 执行 npm run dev
+```js
+process.env.NODE_ENV= dev
+argv.mode= development
+```
+这样我们就可以不同的环境来动态修改 Webpack 的配置
