@@ -85,3 +85,61 @@ module.exports = {
     }
 }
 ```
+### 1.4Loader
+入口改成 CSS 文件
+1. 新增 ./src/main.css
+```css
+body {
+    margin: 0 auto;
+    padding: 0 20px;
+    max-width: 800px;
+    background: #f4f8fb;
+}
+```
+2. 修改 entry 配置
+```js
+const path = require('path')
+
+module.exports = {
+  mode: 'development', // 模式
+  entry: './src/main.css', // 打包入口地址
+  output: {
+    filename: 'bundle.css', // 输出文件名
+    path: path.join(__dirname, 'dist') // 输出文件目录
+  }
+}
+```
+3. 运行打包命令： npx webpack
+```sh
+ERROR in ./src/main.css 1:5
+Module parse failed: Unexpected token (1:5)
+You may need an appropriate loader to handle this file type, currently no loaders are configured to process this file. See https://webpack.js.org/concepts#loaders
+```
+webpack 默认支持处理 JS 与 JSON 文件，其他类型都处理不了，这里必须借助 Loader 来对不同类型的文件的进行处理。
+4. 安装css-loader 来处理 css
+```sh
+npn install css-loader -D
+```
+5. 配置资源加载模块
+```js
+const path = require('path')
+
+module.exports = {
+    mode: 'development', // 模式
+    entry: './src/main.css', // 打包入口地址
+    output: {
+        filename: 'bundle.css', // 输出文件名
+        path: path.join(__dirname, 'dist') // 输出文件目录
+    },
+    module: { 
+        rules: [ // 转换规则
+        {
+            test: /\.css$/, //匹配所有的 css 文件
+            use: 'css-loader' // use: 对应的 Loader 名称
+        }]
+    }
+}
+```
+6. 重新运行打包命令 npx webpack
+尝试完成后，入口文件还是需要改回 ./src/index.js
+结论：Loader 就是将 Webpack 不认识的内容转化为认识的内容
