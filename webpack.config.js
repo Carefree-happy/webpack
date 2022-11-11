@@ -4,7 +4,7 @@ const path = require("path");
 
 console.log('process.env.NODE_ENV=', process.env.NODE_ENV) // 打印环境变量
 
-module.exports = {
+const config = {
     entry: "./src/index.js", // 打包入口地址
     output: {
         filename: "bundle.js", // 输出文件名
@@ -22,8 +22,18 @@ module.exports = {
         new HtmlWebpackPlugin({
             template: './src/index.html'
         }),
-        new CleanWebpackPlugin
-    ]
+        new CleanWebpackPlugin() // 引入打包前清空打包目录插件
+    ],
+    devServer: {
+        static: [
+            {
+                directory: path.resolve(__dirname, 'asserts')
+            }
+        ], // 静态文件目录
+        compress: true, //是否启动压缩 gzip
+        port: 8000, // 端口号
+        open:true  // 是否自动打开浏览器
+    },
 };
 
 module.exports = (env, argv) => {
