@@ -13,6 +13,10 @@
     "cross-env": "^7.0.3",
     "css-loader": "^6.7.1",
     "html-webpack-plugin": "^5.5.0",
+    "postcss": "^8.4.19",
+    "postcss-loader": "^7.0.1",
+    "postcss-preset-env": "^7.8.2",
+    "style-loader": "^3.3.1",
     "webpack-dev-server": "^4.11.1"
   }
 }
