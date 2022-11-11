@@ -474,3 +474,65 @@ last 2 versions # 回退两个浏览器版本
 IE 10 # 兼容IE 10
 ```
 再尝试运行一下
+
+1.11 引入 Less 或者 Sass
+less 和 sass 同样是 Webpack 无法识别的，需要使用对应的 Loader 来处理一下
+|文件类型|loader|
+|---|---|
+|Less|	less-loader|
+|Sass|	sass-loader node-sass 或 dart-sass|
+Less 处理相对比较简单，直接添加对应的 Loader 就好了
+Sass 不光需要安装 sass-loader 还得搭配一个 node-sass，这里 node-sass 建议用淘宝镜像来安装，npm 安装成功的概率太小了 🤣
+这里我们就使用 Sass 来做案例
+1. 安装
+```js
+npm install sass-loader -D
+# 淘宝镜像
+npm i node-sass --sass_binary_site=https://npm.taobao.org/mirrors/node-sass/
+```
+2. 新建 ./src./sass.css
+Sass 文件的后缀可以是 .scss(常用) 或者 .sass
+```js
+$color: rgb(190, 23, 168);
+
+body {
+  p {
+    background-color: $color;
+    width: 300px;
+    height: 300px;
+    display: block;
+    text-align: center;
+    line-height: 300px;
+  }
+}
+```
+3. 引入 Sass 文件
+```js
+import './main.css';
+import './sass.scss' // 引入 Sass 文件
+
+
+const a = 'Hello ITEM'
+console.log(a)
+module.exports = a;
+```
+4. 修改配置
+```js
+const config = {
+   // ...
+   rules: [
+      {
+        test: /\.(s[ac]|c)ss$/i, //匹配所有的 sass/scss/css 文件
+        use: [
+          'style-loader',
+          'css-loader',
+          'postcss-loader',
+          'sass-loader', 
+        ]
+      },
+    ]
+  },
+  // ...
+}
+```
+执行
