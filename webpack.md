@@ -842,3 +842,50 @@ const config = {
 }
 ```
 但是在 webpack5，内置了资源处理模块，file-loader 和 url-loader 都可以不用安装
+
+### 1.14 资源模块的使用
+
+webpack5 新增资源模块(asset module)，允许使用资源文件（字体，图标等）而无需配置额外的 loader。
+资源模块支持以下四个配置：
+1. asset/resource 将资源分割为单独的文件，并导出 url，类似之前的 file-loader 的功能.
+2. asset/inline 将资源导出为 dataUrl 的形式，类似之前的 url-loader 的小于 limit 参数时功能.
+3. asset/source 将资源导出为源码（source code）. 类似的 raw-loader 功能.
+4. asset 会根据文件大小来选择使用哪种类型，当文件小于 8 KB（默认） 的时候会使用 asset/inline，否则会使用 asset/resource
+
+npm uninstall file-loader image-loader url-loader -D
+图片字体相关的配置修改如下：
+```js
+module: { 
+    rules: [
+      // ... 
+      {
+        test: /\.(jpe?g|png|gif)$/i,
+        type: 'asset',
+        generator: {
+          // 输出文件位置以及文件名
+          // [ext] 自带 "." 这个与 url-loader 配置不同
+          filename: "[name][hash:8][ext]"
+        },
+        parser: {
+          dataUrlCondition: {
+            maxSize: 50 * 1024 //超过50kb不转 base64
+          }
+        }
+      },
+      {
+        test: /\.(woff2?|eot|ttf|otf)(\?.*)?$/i,
+        type: 'asset',
+        generator: {
+          // 输出文件位置以及文件名
+          filename: "[name][hash:8][ext]"
+        },
+        parser: {
+          dataUrlCondition: {
+            maxSize: 10 * 1024 // 超过100kb不转 base64
+          }
+        }
+      },
+    ]
+  },
+```
+执行打包，结果跟之前一样
