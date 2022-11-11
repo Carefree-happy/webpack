@@ -312,3 +312,59 @@ process.env.NODE_ENV= dev
 argv.mode= development
 ```
 这样我们就可以不同的环境来动态修改 Webpack 的配置
+
+### 1.8启动 devServer
+1. 安装webpack-dev-server
+⚠️注意：本文使用的 webpack-dev-server 版本是 ^4.11.1，当版本 version >= 4.0.0 时，需要使用 devServer.static 进行配置，不再有 devServer.contentBase 配置项。
+2. 配置本地服务
+```js
+// webpack.config.js
+const config = {
+  devServer: {
+    static: [
+            {
+                directory: path.resolve(__dirname, 'asserts')
+            }
+        ], // 静态文件目录的绝对｜相对路径
+    compress: true, //是否启动压缩 gzip
+    port: 8080, // 端口号
+    open:true  // 是否自动打开浏览器
+  },
+}
+module.exports = (env, argv) => {
+  console.log('argv.mode=',argv.mode) // 打印 mode(模式) 值
+  // 这里可以通过不同的模式修改 config 配置
+  return config;
+}
+```
+为什么要配置 static ?
+webpack 在进行打包的时候，对静态文件的处理，例如图片，都是直接 copy 到 dist 目录下面。但是对于本地开发来说，这个过程太费时，也没有必要，所以在设置 contentBase 之后，就直接到对应的静态目录下面去读取文件，而不需对文件做任何移动，节省了时间和性能开销。
+3. 启动本地服务
+```sh
+npm run dev
+```
+为了看到效果，我在 html 中添加了一段文字，并在 public 下面放入了一张图片 logo.png
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ITEM</title>
+</head>
+<body>
+  <p>ITEM</p>
+</body>
+</html>
+```
+```js
+public       
+└─ logo.png  
+```
+
+打开地址 http://localhost:8080/
+
+访问访问 http://localhost:8080/logo.png
+
+直接显示，则成功
