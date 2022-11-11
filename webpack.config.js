@@ -20,6 +20,44 @@ const config = {
                     // 'style-loader',
                     'css-loader','postcss-loader','sass-loader',] // use: 对应的 Loader 名称
             },
+            // {
+            //     test: /\.(jpe?g|png|gif)$/i, // 匹配图片文件
+            //     use:[
+            //         {
+            //             loader: 'file-loader', // 使用 file-loader
+            //             options: {
+            //                 name: '[name][contenthash:8].[ext]',
+            //                 // 文件小于 50k 会转换为 base64，大于则拷贝文件
+            //                 limit: 50 * 1024
+            //             }
+            //         }
+            //     ]
+            // },
+            {
+                test: /\.(jpe?g|png|gif)$/i,
+                use:[
+                    {
+                        loader: 'url-loader',
+                        options: {
+                            name: '[name][contenthash:8].[ext]',
+                            // 文件小于 50k 会转换为 base64，大于则拷贝文件
+                            limit: 100 * 1024
+                        }
+                    }
+                ]
+            },
+            {
+                test: /\.(woff2?|eot|ttf|otf)(\?.*)?$/i,  // 匹配字体文件
+                use: [
+                    {
+                        loader: 'url-loader',
+                        options: {
+                            name: 'fonts/[name][hash:8].[ext]', // 体积大于 10KB 打包到 fonts 目录下 
+                            limit: 10 * 1024,
+                        } 
+                    }
+                ]
+            },
         ]
     },
     plugins: [ // 配置插件
@@ -27,7 +65,7 @@ const config = {
             template: './src/index.html'
         }),
         new MiniCssExtractPlugin({ // 添加插件
-            filename: '[name].[hash:8].css'
+            filename: '[name].[contenthash:8].css'
         }),
         new CleanWebpackPlugin() // 引入打包前清空打包目录插件
     ],

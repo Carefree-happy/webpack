@@ -1,0 +1,9 @@
+@font-face {
+    font-family: "MyWebFont";
+    src: url('iconfont.woff') format(woff),
+        url('iconfont.woff2') format(woff2);
+}
+
+.iconfont {
+    font-family: "MyWebFont";
+}
