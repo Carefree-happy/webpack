@@ -368,3 +368,109 @@ public
 访问访问 http://localhost:8080/logo.png
 
 直接显示，则成功
+
+### 1.9引入 CSS
+Loader 里面讲到了使用 css-loader 来处理 css，但是单靠 css-loader 是没有办法将样式加载到页面上。这个时候，我们需要再安装一个 style-loader 来完成这个功能
+style-loader 就是将处理好的 css 通过 style 标签的形式添加到页面上
+1. 安装 [style-loader](https://link.juejin.cn/?target=https%3A%2F%2Fwww.npmjs.com%2Fpackage%2Fstyle-loader)
+```sh
+npm install style-loader -D
+```
+2. 配置 Loader
+```js
+const config = {
+  module: { 
+    rules: [
+      {
+        test: /\.css$/, //匹配所有的 css 文件
+        use: ['style-loader','css-loader']
+      }
+    ]
+  },
+}
+```
+⚠️注意： Loader 的执行顺序是固定从后往前，即按 css-loader --> style-loader 的顺序执行
+3. 引用样式文件
+在入口文件 ./src/index.js 引入样式文件 ./src/main.css
+```js
+// ./src/index.js
+import './main.css';
+
+const a = 'Hello ITEM'
+console.log(a)
+module.exports = a;
+```
+
+```js
+/* ./src/main.css */ 
+body {
+  margin: 10px auto;
+  background: cyan;
+  max-width: 800px;
+}
+```
+4. 重启本地服务, 访问 http://localhost:8080/
+这样样式就起作用了，继续修改一下样式
+```css
+body {
+  margin: 10px auto;
+  background: cyan;
+  max-width: 800px;
+  /* 新增 */
+  font-size: 46px;
+  font-weight: 600;
+  color: white;
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+}
+```
+保存之后，样式就自动修改完成了
+
+style-loader 核心逻辑相当于：
+```js
+const content = `${样式内容}`
+const style = document.createElement('style');
+style.innerHTML = content;
+document.head.appendChild(style);
+```
+通过动态添加 style 标签的方式，将样式引入页面
+
+1.10 CSS 兼容性
+使用 postcss-loader，自动添加 CSS3 部分属性的浏览器前缀
+上面我们用到的 transform: translateX(-50%);，需要加上不同的浏览器前缀，这个我们可以使用 postcss-loader 来帮助我们完成
+```js
+npm install postcss postcss-loader postcss-preset-env -D
+```
+添加 postcss-loader 加载器
+```js
+const config = {
+  // ...
+  module: { 
+    rules: [
+      {
+        test: /\.css$/, //匹配所有的 css 文件
+        use: ['style-loader','css-loader', 'postcss-loader']
+      }
+    ]
+  },
+  // ...
+}
+```
+
+创建 postcss 配置文件 postcss.config.js
+```js
+// postcss.config.js
+module.exports = {
+  plugins: [require('postcss-preset-env')]
+}
+```
+
+创建 postcss-preset-env 配置文件 .browserslistrc
+```sh
+# 换行相当于 and
+last 2 versions # 回退两个浏览器版本
+> 0.5% # 全球超过0.5%人使用的浏览器，可以通过 caniuse.com 查看不同浏览器不同版本占有率
+IE 10 # 兼容IE 10
+```
+再尝试运行一下
