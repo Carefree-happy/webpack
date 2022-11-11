@@ -536,3 +536,57 @@ const config = {
 }
 ```
 执行
+
+### 1.12 分离样式文件
+前面，我们都是依赖 style-loader 将样式通过 style 标签的形式添加到页面上
+但是，更多时候，我们都希望可以通过 CSS 文件的形式引入到页面上
+
+1. 安装 mini-css-extract-plugin
+```sh
+npm install mini-css-extract-plugin -D
+```
+
+2. 修改 webpack.config.js 配置
+```js
+// ...
+// 引入插件
+const MiniCssExtractPlugin = require('mini-css-extract-plugin')
+
+const config = {
+  // ...
+  module: { 
+    rules: [
+      // ...
+      {
+        test: /\.(s[ac]|c)ss$/i, //匹配所有的 sass/scss/css 文件
+        use: [
+          // 'style-loader', //隐藏 style-loader
+          MiniCssExtractPlugin.loader, // 添加 loader
+          'css-loader',
+          'postcss-loader',
+          'sass-loader', 
+        ] 
+      },
+    ]
+  },
+  // ...
+  plugins:[ // 配置插件
+    // ...
+    new MiniCssExtractPlugin({ // 添加插件
+      filename: '[name].[hash:8].css'
+    }),
+    // ...
+  ]
+}
+// ...
+```
+
+3. 查看打包结果
+```css
+dist                    
+├─ avatar.d4d42d52.png  
+├─ bundle.js            
+├─ index.html           
+├─ logo.56482c77.png    
+└─ main.3bcbae64.css # 生成的样式文件  
+```
