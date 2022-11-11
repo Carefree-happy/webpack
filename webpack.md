@@ -590,3 +590,255 @@ dist
 ├─ logo.56482c77.png    
 └─ main.3bcbae64.css # 生成的样式文件  
 ```
+### 1.13 图片和字体文件
+虽然上面在配置开发环境的时候，我们可以通过设置 contentBase 去直接读取图片类的静态文件，看一下下面这两种图片使用情况
+
+1. 页面直接引入
+```html
+<!-- 本地可以访问，生产环境会找不到图片 -->
+<img src="/logo.png" alt="">
+```   
+2. 背景图引入
+```html
+<div id="imgBox"></div>
+```
+```css
+/* ./src/main.css */
+...
+#imgBox {
+  height: 400px;
+  width: 400px;
+  background: url('../public/logo.png');
+  background-size: contain;
+}
+```
+常用的处理图片文件的 Loader 包含：
+|Loader|说明|
+|---|---|
+|file-loader|解决图片引入问题，并将图片 copy 到指定目录，默认为 dist|
+|url-loader|解依赖 file-loader，当图片小于 limit 值的时候，会将图片转为 base64 编码，大于 limit 值的时候依然是使用|
+|file-loader|进行拷贝img-loader压缩图片|
+1. 安装 file-loader
+```js
+npm install file-loader -D
+```
+2. 修改配置
+```js
+const config = {
+  //...
+  module: { 
+    rules: [
+      {
+         // ...
+      }, 
+      {
+        test: /\.(jpe?g|png|gif)$/i, // 匹配图片文件
+        use:[
+          'file-loader' // 使用 file-loader
+        ]
+      }
+    ]
+  },
+  // ...
+}
+```
+3. 引入图片
+```html
+<!-- ./src/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<body>
+  <p></p>
+  <div id="imgBox"></div>
+</body>
+</html>
+```
+样式文件中引入
+
+```css
+/* ./src/sass.scss */
+$color: rgb(190, 23, 168);
+
+body {
+  p {
+    width: 300px;
+    height: 300px;
+    display: block;
+    text-align: center;
+    line-height: 300px;
+    background: url('../public/logo.png');
+    background-size: contain;
+  }
+}
+```
+js 文件中引入
+```js
+import './main.css';
+import './sass.scss'
+import logo from '../public/avatar.png'
+
+const a = 'Hello ITEM'
+console.log(a)
+
+const img = new Image()
+img.src = logo
+
+document.getElementById('imgBox').appendChild(img)
+```
+启动服务，我们看一下效果
+显示正常 ✌️
+我们可以看到图片文件的名字都已经变了，并且带上了 hash 值，然后我看一下打包目录
+```sh
+dist                                     
+├─ 56482c77280b3c4ad2f083b727dfcbf9.png  
+├─ bundle.js                             
+├─ d4d42d529da4b5120ac85878f6f69694.png  
+└─ index.html     
+```
+dist 目录下面多了两个文件，这正是 file-loader 拷贝过来的
+如果想要修改一下名称，可以加个配置
+```js
+const config = {
+  //...
+  module: { 
+    rules: [
+      {
+         // ...
+      }, 
+      {
+        test: /\.(jpe?g|png|gif)$/i,
+        use:[
+          {
+            loader: 'file-loader',
+            options: {
+              name: '[name][hash:8].[ext]'
+            }
+          }
+        ]
+      }
+    ]
+  },
+  // ...
+}
+```
+打包看一下
+```sh
+dist                   
+├─ avatard4d42d52.png  
+├─ bundle.js           
+├─ index.html          
+└─ logo56482c77.png 
+```   
+再看一下 url-loader
+
+4. 安装 url-loader
+```sh
+npm install url-loader -D
+```
+5. 配置 url-loader
+配置和 file-loader 类似，多了一个 limit 的配置
+
+webpack 中 url-loader 与 file-loader 版本冲突，请注释 file-loader 的内容
+```js
+const config = {
+  //...
+  module: { 
+    rules: [
+      {
+         // ...
+      }, 
+      {
+        test: /\.(jpe?g|png|gif)$/i,
+        use:[
+          {
+            loader: 'url-loader',
+            options: {
+              name: '[name][hash:8].[ext]',
+              // 文件小于 50k 会转换为 base64，大于则拷贝文件
+              limit: 50 * 1024
+            }
+          }
+        ]
+      },
+    ]
+  },
+  // ...
+}
+```
+看一下，我们两个图片文件的体积
+```js
+public         
+├─ bee.png # 167kb
+└─ bee2.png   # 43kb 
+```
+我们打包看一下效果
+可以看到 bee2.png 文件转为 base64 👌
+
+6. 配置文字字体
+从 [iconfont.cn ](https://www.iconfont.cn/)下载字体文件到本地
+在项目中，新建 ./src/fonts 文件夹来存放字体文件
+```css
+// 新建 iconfont.css
+@font-face {
+    font-family: "MyWebFont";
+    src: url('iconfont.woff') format(woff),
+        url('iconfont.woff2') format(woff2);
+}
+
+.iconfont {
+    font-family: "MyWebFont";
+}
+```
+然后，引入到入口文件
+```js
+// ./src/index.js
+
+import './main.css';
+import './sass.scss'
+import logo from '../public/avatar.png'
+
+// 引入字体图标文件
+import './fonts/iconfont.css'
+const a = 'Hello ITEM'
+console.log(a)
+
+const img = new Image()
+img.src = logo
+
+document.getElementById('imgBox').appendChild(img)
+```
+接着，在 ./src/index.html 中使用
+```html
+<!DOCTYPE html>
+<html lang="en">
+...
+<body>
+  <p></p>
+  <!-- 使用字体图标文件 -->
+  <!-- 1）iconfont 对应 font-family 设置的值-->
+  <!-- 2）icon-member 图标 class 名称可以在 iconfont.cn 中查找-->
+  <i class="iconfont">昨夜小楼又东风</i>
+  <div id="imgBox"></div>
+</body>
+</html>
+```
+最后，增加字体文件的配置
+```js
+const config = {
+  // ...
+  {
+    test: /\.(woff2?|eot|ttf|otf)(\?.*)?$/i,  // 匹配字体文件
+    use: [
+      {
+        loader: 'url-loader',
+        options: {
+          name: 'fonts/[name][hash:8].[ext]', // 体积大于 10KB 打包到 fonts 目录下 
+          limit: 10 * 1024,
+        } 
+      }
+    ]
+  },
+  // ...
+}
+```
+但是在 webpack5，内置了资源处理模块，file-loader 和 url-loader 都可以不用安装
