@@ -2,7 +2,7 @@
   "scripts": {
     "dev": "cross-env NODE_ENV=dev webpack serve --mode development",
     "test": "cross-env NODE_ENV=test webpack --mode production",
-    "build": "cross-env NODE_ENV=prod webpack --mode production"
+    "build": "cross-env NODE_ENV=prod webpack --mode none"
   },
   "resolutions": {
     "mini-css-extract-plugin": "2.4.5"
@@ -13,6 +13,9 @@
     "webpack-cli": "^4.10.0"
   },
   "devDependencies": {
+    "@babel/core": "^7.20.2",
+    "@babel/preset-env": "^7.20.2",
+    "babel-loader": "^9.1.0",
     "clean-webpack-plugin": "^4.0.0",
     "cross-env": "^7.0.3",
     "css-loader": "^6.7.1",

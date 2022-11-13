@@ -9,6 +9,17 @@ console.log(b)
 
 const img = new Image()
 img.src = logo
-
+class Author {
+    name = "ITEM"
+    age = 18
+    email = 'lxp_work@163.com'
+    info = () => {
+        return {
+            name: this.name,
+            age: this.age,
+            email: this.email
+        }
+    }
+}
 document.getElementById('imgBox').appendChild(img)
-export default b
+export default Author
