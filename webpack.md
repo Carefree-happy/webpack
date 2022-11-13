@@ -889,3 +889,139 @@ module: {
   },
 ```
 执行打包，结果跟之前一样
+
+<!-- https://juejin.cn/post/7023242274876162084#heading-16 -->
+<!-- https://juejin.cn/search?query=webpack5&type=0 -->
+### 1.15JS兼容性
+开发中我们想使用最新的 Js 特性，但是有些新特性的浏览器支持并不是很好，所以 Js 需要做兼容处理，常见的就是将 ES6 语法转化为 ES5。
+1. 未配置 Babel
+```js
+class Author {
+    name = "ITEM"
+    age = 18
+    email = 'lxp_work@163.com'
+    info = () => {
+        return {
+            name: this.name,
+            age: this.age,
+            email: this.email
+        }
+    }
+}
+```
+将 builld 中的 mode 换成 development，执行打包命令
+
+将 builld 中的 mode 换成 none，观察两种打包效果后的文件
+
+2. 安装依赖
+```js
+npm install babel-loader @babel/core @babel/preset-env -D
+```
+- babel-loader 使用 Babel 加载 ES2015+ 代码并将其转换为 ES5
+- @babel/core Babel 编译的核心包
+- @babel/preset-env Babel 编译的预设，可以理解为 Babel 插件的超集
+
+3. 配置 Babel 预设
+```js
+// webpack.config.js
+// ...
+const config = {
+  entry: './src/index.js', // 打包入口地址
+  output: {
+    filename: 'bundle.js', // 输出文件名
+    path: path.join(__dirname, 'dist'), // 输出文件目录
+  },
+  module: { 
+    rules: [
+      {
+        test: /\.js$/i,
+        use: [
+          {
+            loader: 'babel-loader',
+            options: {
+              presets: [
+                '@babel/preset-env'
+              ],
+            }
+          }
+        ]
+      },
+    // ...
+    ]
+  },
+  //...
+}
+// ...
+```
+一个简单的 Babel 预设就配置完了
+
+常见 Babel 预设还有：
+
+- @babel/preset-flow
+- @babel/preset-react
+- @babel/preset-typescript
+
+```js
+// ./ index.js
+
+import './main.css';
+import './sass.scss'
+import logo from '../public/avatar.png'
+
+import './fonts/iconfont.css'
+
+const a = 'Hello ITEM'
+console.log(a)
+
+const img = new Image()
+img.src = logo
+
+document.getElementById('imgBox').appendChild(img)
+
+// 新增装饰器的使用
+@log('hi')
+class MyClass { }
+
+function log(text) {
+  return function(target) {
+    target.prototype.logger = () => `${text}，${target.name}`
+  }
+}
+
+const test = new MyClass()
+test.logger()
+```
+执行一下打包
+不出所料，识别不了 🙅🏻‍♀️
+
+怎么才能使用呢？Babel 其实提供了对应的插件：
+
+- @babel/plugin-proposal-decorators
+- @babel/plugin-proposal-class-properties
+
+```js
+npm install babel/plugin-proposal-decorators @babel/plugin-proposal-class-properties -D
+```
+
+```js
+module.exports = {
+  presets: [
+    [
+      "@babel/preset-env",
+      {
+        useBuiltIns: "entry",
+        corejs: "3.9.1",
+        targets: {
+          chrome: "58",
+          ie: "11",
+        },
+      },
+    ],
+  ],
+  plugins: [    
+    ["@babel/plugin-proposal-decorators", { legacy: true }],
+    ["@babel/plugin-proposal-class-properties", { loose: true }],
+  ]
+};
+```
+在 bundle.js 中已经转化为浏览器支持的 Js 代码
